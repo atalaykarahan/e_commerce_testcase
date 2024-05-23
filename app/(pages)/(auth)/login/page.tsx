@@ -43,8 +43,8 @@ const LoginPage = () => {
           </div>
           <div className="mt-4 text-center text-sm">
             Hesabın yok mu kayıt ol.{" "}
-            <Link href="#" className="underline">
-              Sign up
+            <Link href="/register" className="underline">
+              Üye ol
             </Link>
           </div>
         </div>
