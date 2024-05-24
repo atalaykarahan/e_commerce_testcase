@@ -1,9 +1,11 @@
+"use client";
 import {
   ChevronLeft,
   ChevronRight,
   Copy,
   CreditCard,
   MoreVertical,
+  Ticket,
   Truck,
 } from "lucide-react";
 
@@ -29,7 +31,11 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { Separator } from "./ui/separator";
+import BasketItems from "./basket-items";
+import TicketDialog from "./ticket-dialog";
+import { useState } from "react";
 const Basket = () => {
+    const [tickedDialog, setTicketDialog] = useState<boolean>(false);
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-start bg-muted/50">
@@ -48,13 +54,13 @@ const Basket = () => {
           <CardDescription>Date: November 23, 2023</CardDescription>
         </div>
         <div className="ml-auto flex items-center gap-1">
-          <Button size="sm" variant="outline" className="h-8 gap-1">
-            <Truck className="h-3.5 w-3.5" />
+          <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setTicketDialog(true)}>
+            <Ticket className="h-3.5 w-3.5"  />
             <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-              Track Order
+              Kupon kodu giriniz.
             </span>
           </Button>
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="outline" className="h-8 w-8">
                 <MoreVertical className="h-3.5 w-3.5" />
@@ -67,12 +73,17 @@ const Basket = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>Trash</DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
       </CardHeader>
       <CardContent className="p-6 text-sm">
+        {/* ornek bir adet siparis */}
+        <BasketItems/>
+       
+
+        <Separator className="my-4" />
         <div className="grid gap-3">
-          <div className="font-semibold">Order Details</div>
+          <div className="font-semibold">Sipariş Detay</div>
           <ul className="grid gap-3">
             <li className="flex items-center justify-between">
               <span className="text-muted-foreground">
@@ -90,25 +101,25 @@ const Basket = () => {
           <Separator className="my-2" />
           <ul className="grid gap-3">
             <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">Ara Toplam</span>
               <span>$299.00</span>
             </li>
             <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Shipping</span>
+              <span className="text-muted-foreground">Kargo</span>
               <span>$5.00</span>
             </li>
             <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-muted-foreground">Standart teslimat</span>
               <span>$25.00</span>
             </li>
             <li className="flex items-center justify-between font-semibold">
-              <span className="text-muted-foreground">Total</span>
+              <span className="text-muted-foreground">Toplam</span>
               <span>$329.00</span>
             </li>
           </ul>
         </div>
-        <Separator className="my-4" />
-        <div className="grid grid-cols-2 gap-4">
+        {/* <Separator className="my-4" /> */}
+        {/* <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-3">
             <div className="font-semibold">Shipping Information</div>
             <address className="grid gap-0.5 not-italic text-muted-foreground">
@@ -123,9 +134,9 @@ const Basket = () => {
               Same as shipping address
             </div>
           </div>
-        </div>
-        <Separator className="my-4" />
-        <div className="grid gap-3">
+        </div> */}
+        {/* <Separator className="my-4" /> */}
+        {/* <div className="grid gap-3">
           <div className="font-semibold">Customer Information</div>
           <dl className="grid gap-3">
             <div className="flex items-center justify-between">
@@ -145,9 +156,9 @@ const Basket = () => {
               </dd>
             </div>
           </dl>
-        </div>
-        <Separator className="my-4" />
-        <div className="grid gap-3">
+        </div> */}
+        {/* <Separator className="my-4" /> */}
+        {/* <div className="grid gap-3">
           <div className="font-semibold">Payment Information</div>
           <dl className="grid gap-3">
             <div className="flex items-center justify-between">
@@ -158,29 +169,20 @@ const Basket = () => {
               <dd>**** **** **** 4532</dd>
             </div>
           </dl>
-        </div>
+        </div> */}
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
-          Updated <time dateTime="2023-11-23">November 23, 2023</time>
+          <Button>Satın al</Button>
         </div>
-        <Pagination className="ml-auto mr-0 w-auto">
-          <PaginationContent>
-            <PaginationItem>
-              <Button size="icon" variant="outline" className="h-6 w-6">
-                <ChevronLeft className="h-3.5 w-3.5" />
-                <span className="sr-only">Previous Order</span>
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <Button size="icon" variant="outline" className="h-6 w-6">
-                <ChevronRight className="h-3.5 w-3.5" />
-                <span className="sr-only">Next Order</span>
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+     
       </CardFooter>
+
+{TicketDialog && (
+    <TicketDialog  openModal={tickedDialog}
+    closeModal={() => setTicketDialog(false)} />
+
+)}
     </Card>
   );
 };

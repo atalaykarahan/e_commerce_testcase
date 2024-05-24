@@ -26,7 +26,7 @@ interface ProductItemProps {
 }
 const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[325px]">
       <CardHeader>
         <CardTitle>{product.title}</CardTitle>
         <CardDescription>{product.description}</CardDescription>
