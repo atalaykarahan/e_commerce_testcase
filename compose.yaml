@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=e_commerce_testcase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=951753
+    ports:
+      - "5437:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+      # - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--requirepass", "wubbalubbadubdub"]
+    volumes:
+      - redis:/data
+
+volumes:
+  db:
+  redis:
