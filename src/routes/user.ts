@@ -9,4 +9,7 @@ router.post("/signup", UserController.signUp);
 //email verified
 router.post("/email-verified", UserController.emailVerified);
 
+//login
+router.post("/login", UserController.login);
+
 export default router;

@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import { sendVerifyMail } from "../util/mail";
 import env from "../util/validateEnv";
 
-//#region SIGNUP
+//#region SIGNUP /api/users/signup
 interface SignUpBody {
   user_name?: string;
   user_email?: string;
@@ -80,7 +80,7 @@ export const signUp: RequestHandler<
 };
 //#endregion
 
-//#region EMAIL VERIFIED
+//#region EMAIL VERIFIED /api/users/email-verified
 interface EmailVerifiedBody {
   token?: string;
 }
@@ -145,3 +145,40 @@ export const emailVerified: RequestHandler<
   }
 };
 //#endregion EMAIL VERIFIED
+
+//#region LOGIN /api/users/login
+interface LoginBody {
+  user_email?: string;
+  user_password?: string;
+}
+export const login: RequestHandler<
+  unknown,
+  unknown,
+  LoginBody,
+  unknown
+> = async (req, res, next) => {
+  const user_email = req.body.user_email;
+  const user_password = req.body.user_password;
+  console.log(user_email, user_password)
+
+  try {
+    if (!user_email || !user_password) {
+      throw createHttpError(400, "Missing parameters");
+    }
+
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    if (!emailRegex.test(user_email))
+      throw createHttpError(400, "Invalid format email");
+
+    const user = await UserService.validateUser(user_email, user_password);
+
+    if (!user) throw createHttpError(401, "Invalid credentials");
+
+    // req.session.user_id = user.user_id;
+    res.status(201).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+//#endregion LOGIN

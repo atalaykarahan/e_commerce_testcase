@@ -1,4 +1,5 @@
 import UserModel from "../models/user";
+import bcrypt from "bcrypt";
 
 //#region GET BY NAME
 export const getUserByName = async (user_name: string) => {
@@ -22,7 +23,7 @@ export const getUserByEmail = async (user_email: string) => {
   if (!user) return null;
 
   const { user_password, ...result } = user["dataValues"];
-  return result;
+  return user;
 };
 //#endregion
 
@@ -40,5 +41,21 @@ export const createUser = async (
     user_surname: user_surname,
   });
   return true;
+};
+//#endregion
+
+//#region LOGIN
+export const validateUser = async (email: string, password: string) => {
+  const user = await UserModel.findOne({
+    where: { user_email: email },
+  });
+
+  if (!user) return null;
+
+  const passwordMatch = await bcrypt.compare(password, user.user_password);
+
+  if (!passwordMatch) return null;
+  const { user_password, ...result } = user["dataValues"];
+  return user;
 };
 //#endregion
