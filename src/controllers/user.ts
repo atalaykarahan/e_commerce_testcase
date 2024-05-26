@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
-import UserModel from "../models/user";
 import jwt from "jsonwebtoken";
-import * as nodemailer from "nodemailer";
+import UserModel from "../models/user";
+import * as UserService from "../services/user";
 
-import env from "../util/validateEnv";
 import { sendVerifyMail } from "../util/mail";
+import env from "../util/validateEnv";
 
 //#region SIGNUP
 interface SignUpBody {
@@ -31,9 +31,7 @@ export const signUp: RequestHandler<
     }
 
     // Check same username
-    const existingUsername = await UserModel.findOne({
-      where: { user_name: user_name },
-    });
+    const existingUsername = await UserService.getUserByName(user_name);
 
     if (existingUsername) {
       throw createHttpError(
@@ -42,9 +40,7 @@ export const signUp: RequestHandler<
       );
     }
 
-    const existingEmail = await UserModel.findOne({
-      where: { user_email: user_email },
-    });
+    const existingEmail = await UserService.getUserByEmail(user_email);
 
     if (existingEmail) {
       throw createHttpError(
@@ -68,16 +64,12 @@ export const signUp: RequestHandler<
         user_password: user_password,
       };
     }
-    console.log("bir alt satırda mail yollanmalı");
     const token = jwt.sign(obj, env.JWT_SECRET, { expiresIn: "5m" });
     const confirmLink = `https://localhost.com:300/new-verification?token=${token}`;
 
     const mail = await sendVerifyMail(user_email, confirmLink);
-    if (mail) {
-      console.log("yollanmış olmalı");
-    } else {
-      console.log("yollananmdı");
-      return false;
+    if (!mail) {
+      throw createHttpError(409, "Mail could not be sent.");
     }
 
     res.status(201).json({ message: "mail sent" });
@@ -85,8 +77,4 @@ export const signUp: RequestHandler<
     next(error);
   }
 };
-
-// function sendMail(transporter: any, mailOptions: any) {
-//   throw new Error("Function not implemented.");
-// }
 //#endregion
