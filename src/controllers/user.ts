@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/user";
 import * as UserService from "../services/user";
+import bcrypt from "bcrypt";
 
 import { sendVerifyMail } from "../util/mail";
 import env from "../util/validateEnv";
@@ -65,7 +66,7 @@ export const signUp: RequestHandler<
       };
     }
     const token = jwt.sign(obj, env.JWT_SECRET, { expiresIn: "5m" });
-    const confirmLink = `https://localhost.com:300/new-verification?token=${token}`;
+    const confirmLink = `http://localhost:3000/mail-verification?token=${token}`;
 
     const mail = await sendVerifyMail(user_email, confirmLink);
     if (!mail) {
@@ -78,3 +79,69 @@ export const signUp: RequestHandler<
   }
 };
 //#endregion
+
+//#region EMAIL VERIFIED
+interface EmailVerifiedBody {
+  token?: string;
+}
+export const emailVerified: RequestHandler<
+  unknown,
+  unknown,
+  EmailVerifiedBody,
+  unknown
+> = async (req, res, next) => {
+  const incomingToken = req.body.token;
+
+  try {
+    if (!incomingToken) {
+      throw createHttpError(400, "Missing parameters");
+    }
+    const decoded = jwt.verify(incomingToken, env.JWT_SECRET);
+
+    if (decoded && typeof decoded !== "string") {
+      // Check same username
+      const existingUsername = await UserService.getUserByName(
+        decoded.user_name
+      );
+
+      if (existingUsername) {
+        throw createHttpError(
+          409,
+          "Username already taken. Please choose a different one or log in instead."
+        );
+      }
+
+      // Check same email
+      const existingEmail = await UserService.getUserByEmail(
+        decoded.user_email
+      );
+
+      if (existingEmail) {
+        throw createHttpError(
+          409,
+          "Username already taken. Please choose a different one or log in instead."
+        );
+      }
+
+      const passwordHashed = await bcrypt.hash(decoded.user_password, 10);
+      await UserService.createUser(
+        decoded.user_name,
+        decoded.user_email,
+        passwordHashed,
+        decoded.user_surname
+      );
+
+      res.status(201).json({ message: "User successfully created!" });
+    }
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      // When token has been expired we have a custom error message for that
+      return res.status(401).json({
+        error:
+          "Your token has been expired. Please try again verification process.",
+      });
+    }
+    next(error);
+  }
+};
+//#endregion EMAIL VERIFIED

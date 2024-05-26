@@ -14,7 +14,7 @@ interface UserInstance
   > {
   user_id: CreationOptional<string>;
   user_name: string;
-  user_surname: string;
+  user_surname: string | null;
   user_password: string;
   user_email: string;
 }
@@ -30,10 +30,11 @@ const User = db.define<UserInstance>(
     user_name: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique:true,
     },
     user_surname: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     user_password: {
       type: DataTypes.STRING,
@@ -42,6 +43,7 @@ const User = db.define<UserInstance>(
     user_email: {
       type: DataTypes.STRING,
       allowNull: true,
+      unique:true,
     },
   },
   {
