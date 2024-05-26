@@ -175,7 +175,7 @@ export const login: RequestHandler<
 
     if (!user) throw createHttpError(401, "Invalid credentials");
 
-    // req.session.user_id = user.user_id;
+    req.session.user_id = user.user_id;
     res.status(201).json(user);
   } catch (error) {
     next(error);

@@ -1,12 +1,17 @@
-import express, { NextFunction, Request, Response } from "express";
-import productRoutes from "./routes/product";
+import cors from "cors";
 import "dotenv/config";
-import userRoutes from "./routes/user";
+import express, { NextFunction, Request, Response } from "express";
+import session from "express-session";
 import createHttpError, { isHttpError } from "http-errors";
 import morgan from "morgan";
-import cors from "cors";
+import productRoutes from "./routes/product";
+import userRoutes from "./routes/user";
+import env from "./util/validateEnv";
+import Redis from "ioredis";
+import connectRedis from "connect-redis";
+
 const app = express();
-const port = 4006;
+const port = env.EXPRESS_PORT;
 
 import db from "../db";
 
@@ -29,12 +34,30 @@ app.use(morgan("dev"));
 // for post methods
 app.use(express.json());
 
+const RedisStore = require("connect-redis").default;
+//bos birakınca default olan 6379a baglanir
+const redis = new Redis({});
+
+app.use(
+  session({
+    name: "sessid",
+    store: new RedisStore({ client: redis, Touch: false }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+      secure: false, //gelistirme sureci diye false yaptim
+    },
+    secret: "mysecretkey",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
 // Product routes api/products
 app.use("/api/products", productRoutes);
 
 // User routes api/users
 app.use("/api/users", userRoutes);
-
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Endpoint not found"));
