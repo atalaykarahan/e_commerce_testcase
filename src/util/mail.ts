@@ -16,11 +16,11 @@ export const sendVerifyMail = async (mail: string, link: string) => {
   try {
     await transporter.sendMail({
       from: {
-        name: "Atalay Karahan",
+        name: "Mordecai ve Rigby",
         address: env.MAIL_USER,
       },
       to: [mail],
-      subject: "buraya konu",
+      subject: "Hesabını onayla ki girebilesin",
       html: `<a href="${link}">hesabını onaylamak için tıkla</a>`,
     });
     return true;
