@@ -1,7 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import productRoutes from "./routes/product";
+import "dotenv/config";
+import userRoutes from "./routes/user";
 import createHttpError, { isHttpError } from "http-errors";
 import morgan from "morgan";
+import cors from "cors";
 const app = express();
 const port = 4006;
 
@@ -14,13 +17,24 @@ db.authenticate()
 
 app.use(express.json());
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
 app.use(morgan("dev"));
 
 // for post methods
 app.use(express.json());
 
-// Book routes api/books
+// Product routes api/products
 app.use("/api/products", productRoutes);
+
+// User routes api/users
+app.use("/api/users", userRoutes);
+
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Endpoint not found"));
