@@ -22,6 +22,7 @@ import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
+import { signUp } from "@/app/api/services/authService";
 
 const RegisterPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
@@ -37,6 +38,14 @@ const RegisterPage = () => {
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     console.log(values);
+    console.log(process.env.BASE_URL)
+    try {
+      signUp(values).then((res: any) => {
+        console.log(res);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -102,7 +111,7 @@ const RegisterPage = () => {
                   <FormItem className="grid gap-2">
                     <FormLabel>Şifre</FormLabel>
                     <FormControl>
-                      <Input {...field} type="password" />
+                      <Input {...field} type="password" required />
                     </FormControl>
                   </FormItem>
                 )}
