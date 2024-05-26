@@ -9,3 +9,7 @@ export const signUp = (user: any) => {
 
   return axios.post(`/users/signup`, props);
 };
+
+export const verifiedEmail = (token: string) => {
+  return axios.post(`/users/email-verified`, { token: token });
+};
