@@ -38,7 +38,6 @@ const RegisterPage = () => {
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     console.log(values);
-    console.log(process.env.BASE_URL)
     try {
       signUp(values).then((res: any) => {
         console.log(res);
