@@ -38,7 +38,11 @@ app.use(express.json());
 
 const RedisStore = require("connect-redis").default;
 //bos birakınca default olan 6379a baglanir
-export const redisClient = new Redis({});
+export const redisClient = new Redis({
+  host:"localhost",
+  port: 6380,
+  password: "wubbalubbadubdub",
+});
 
 app.use(
   session({
@@ -88,9 +92,8 @@ app.listen(port!, async () => {
 async function loadProductsToCache() {
   try {
     await storeProductsToCache();
-    console.log('Tüm ürünler Redis cache\'e yüklendi.');
+    console.log("Tüm ürünler Redis cache'e yüklendi.");
   } catch (error) {
-    console.error('Ürünleri yüklerken hata:', error);
+    console.error("Ürünleri yüklerken hata:", error);
   }
 }
-
