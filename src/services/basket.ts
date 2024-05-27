@@ -1,3 +1,4 @@
+import { productDTO } from "../models/dto/product";
 import { redisClient } from "../server";
 import * as ProductService from "./product";
 
@@ -17,23 +18,31 @@ export const addToBasket = async (user_id: string, product_id: string) => {
 
   const existingItem = items.find((i) => i.product_id === product_id);
 
-  const product = await ProductService.getProductById(product_id);
-  if (!product) return null;
+  //   const product = await ProductService.getProductById(product_id);
+  const productsCache = await redisClient.get("products");
+  let products: productDTO[] = productsCache ? JSON.parse(productsCache) : [];
+  const selectedProductCache = products.find(
+    (i) => i.product_id === product_id
+  );
+  if (!selectedProductCache) return null;
 
   //sepette bu urunden var demektir
   if (existingItem) {
-    if (product.product_stock_quantity >= existingItem.quantity + 1) {
+    if (
+      selectedProductCache.product_stock_quantity >=
+      existingItem.quantity + 1
+    ) {
       existingItem.quantity += 1;
     } else {
       return null;
     }
   } else {
-    if (product.product_stock_quantity > 0) {
+    if (selectedProductCache.product_stock_quantity > 0) {
       const prodcut: basketItem = {
-        product_id: product.product_id,
-        product_title: product.product_title,
+        product_id: selectedProductCache.product_id,
+        product_title: selectedProductCache.product_title,
         quantity: 1,
-        product_price: product.product_price,
+        product_price: selectedProductCache.product_price,
       };
       items.push(prodcut);
     } else {
@@ -58,5 +67,3 @@ export const getBasket = async (user_id: string) => {
   return items;
 };
 //#endregion
-
-
