@@ -6,6 +6,7 @@ import createHttpError, { isHttpError } from "http-errors";
 import morgan from "morgan";
 import productRoutes from "./routes/product";
 import userRoutes from "./routes/user";
+import basketRoutes from "./routes/basket";
 import env from "./util/validateEnv";
 import Redis from "ioredis";
 import connectRedis from "connect-redis";
@@ -36,12 +37,12 @@ app.use(express.json());
 
 const RedisStore = require("connect-redis").default;
 //bos birakınca default olan 6379a baglanir
-const redis = new Redis({});
+export const redisClient = new Redis({});
 
 app.use(
   session({
     name: env.COOKIE_NAME,
-    store: new RedisStore({ client: redis, Touch: false }),
+    store: new RedisStore({ client: redisClient, Touch: false }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
@@ -59,6 +60,10 @@ app.use("/api/products", productRoutes);
 // User routes api/users
 app.use("/api/users", userRoutes);
 
+// User routes api/basket
+app.use("/api/basket", basketRoutes);
+
+// Basket routes api/basket
 app.use((req, res, next) => {
   next(createHttpError(404, "Endpoint not found"));
 });

@@ -3,6 +3,7 @@ import CategoryModel from "../models/category";
 import FlavorModel from "../models/flavor";
 import ProductModel from "../models/product";
 
+//#region GET PRODUCTS
 export const getProducts = async () => {
   const products = await ProductModel.findAll({
     attributes: [
@@ -31,3 +32,12 @@ export const getProducts = async () => {
   });
   return products;
 };
+//#endregion
+
+//#region GET BY ID
+export const getProductById = async (product_id:string) => {
+  const product = await ProductModel.findByPk(product_id);
+  if (!product) return null;
+  return product;
+};
+//#endregion
