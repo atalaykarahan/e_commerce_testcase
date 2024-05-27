@@ -105,7 +105,36 @@ export const getBasket = async (user_id: string) => {
 
   if (!items) return null;
 
-  return items;
+  //ara toplam
+  const subTotal = parseFloat(
+    items
+      .reduce((sum, item) => sum + item.product_price * item.quantity, 0)
+      .toFixed(2)
+  );
+  let total = subTotal;
+  let gift = false;
+
+  //kargo ucreti
+  const shippingCost = subTotal > 500 ? 0 : 54.99;
+
+  //%10 indirim
+  if (subTotal > 1000 && subTotal < 1500) {
+    total = subTotal - subTotal * 0.1; //%10 indirim;
+    gift = false;
+  } else if (subTotal > 1500 && subTotal < 2000) {
+    gift = false;
+    total = subTotal - subTotal * 0.15;
+  } else if (subTotal > 2000 && subTotal < 3000) {
+    gift = false;
+    total = subTotal - subTotal * 0.2;
+  } else if (subTotal > 3000) {
+    total = subTotal - subTotal * 0.25;
+    gift = true;
+  }
+
+  total = parseFloat(total.toFixed(2));
+
+  return { items, total, subTotal, gift, shippingCost };
 };
 //#endregion
 
