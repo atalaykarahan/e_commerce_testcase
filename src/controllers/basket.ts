@@ -15,7 +15,7 @@ export const getBasket: RequestHandler = async (req, res, next) => {
 };
 //#endregion
 
-//#region ADD ITEM /api/basket/
+//#region ADD ITEM /api/basket/add
 interface addItemBody {
   product_id?: string;
 }
@@ -46,3 +46,36 @@ export const addItem: RequestHandler<
 };
 
 //#endregion
+
+//#region REMOVE ITEM /api/basket/remove
+interface addItemBody {
+    product_id?: string;
+  }
+  export const removeItem: RequestHandler<
+    unknown,
+    unknown,
+    addItemBody,
+    unknown
+  > = async (req, res, next) => {
+    const product_id = req.body.product_id;
+  
+    try {
+      if (!product_id) {
+        throw createHttpError(400, "Missing parameters");
+      }
+  
+      const basketStatus = await BasketService.removeFromBasket(
+        req.session.user_id,
+        product_id
+      );
+      if (!basketStatus)
+        throw createHttpError(400, "Not enough stock for the requested quantity");
+  
+      res.sendStatus(200);
+    } catch (error) {
+      next(error);
+    }
+  };
+  
+  //#endregion
+  

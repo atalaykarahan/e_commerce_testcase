@@ -54,6 +54,47 @@ export const addToBasket = async (user_id: string, product_id: string) => {
 };
 //#endregion
 
+//#region REMOVE
+interface basketItem {
+  product_id: string;
+  product_title: string;
+  quantity: number;
+  product_price: number;
+}
+export const removeFromBasket = async (user_id: string, product_id: string) => {
+  const basketKey = `basket:${user_id}`;
+
+  //get user basket
+  const basket = await redisClient.get(basketKey);
+  let items: basketItem[] = basket ? JSON.parse(basket) : [];
+
+  //kullanicinin sepetindeki urun
+  const existingItem = items.find((i) => i.product_id === product_id);
+
+  //cache icindeki tum urunler
+  const productsCache = await redisClient.get("products");
+  let products: productDTO[] = productsCache ? JSON.parse(productsCache) : [];
+
+  //cache icindeki istenilen urun
+  const selectedProductCache = products.find(
+    (i) => i.product_id === product_id
+  );
+  if (!selectedProductCache) return null;
+
+  if (existingItem && existingItem?.quantity >= 2) {
+    if (selectedProductCache.product_stock_quantity >= existingItem.quantity) {
+      existingItem.quantity -= 1;
+    } else {
+      return null;
+    }
+  } else if (existingItem) {
+    items = removeItemByProductId(items, existingItem.product_id);
+  }
+  await redisClient.set(basketKey, JSON.stringify(items));
+  return true;
+};
+//#endregion
+
 //#region GET BASKET
 export const getBasket = async (user_id: string) => {
   const basketKey = `basket:${user_id}`;
@@ -67,3 +108,7 @@ export const getBasket = async (user_id: string) => {
   return items;
 };
 //#endregion
+
+function removeItemByProductId(items: basketItem[], productIdToRemove: string) {
+  return items.filter((item) => item.product_id !== productIdToRemove);
+}
