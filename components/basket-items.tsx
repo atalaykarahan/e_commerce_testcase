@@ -28,19 +28,18 @@ import {
 } from "@/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Pagination, PaginationContent, PaginationItem } from "./ui/pagination";
-import { basketModel } from "./basket";
+import { itemsModel } from "./basket";
 import { addItem, removeItem } from "@/app/api/services/basketService";
 import { toast } from "sonner";
 import { reloadMyBasketEmitter } from "./product-item";
 
 interface BasketItemsProps {
-  products?: basketModel[];
+  products?: itemsModel[];
 }
 const BasketItems: React.FC<BasketItemsProps> = ({ products }) => {
   const plusItem = async (product_id: string) => {
     await addItem(product_id).then(
       (res: any) => {
-        console.log("eklendi");
         reloadMyBasketEmitter.emit("update");
       },
       (error) => {
@@ -61,7 +60,6 @@ const BasketItems: React.FC<BasketItemsProps> = ({ products }) => {
   const discardItem = async (product_id: string) => {
     await removeItem(product_id).then(
       (res: any) => {
-        console.log("eklendi");
         reloadMyBasketEmitter.emit("update");
       },
       (error) => {

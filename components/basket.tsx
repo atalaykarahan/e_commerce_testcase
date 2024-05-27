@@ -18,15 +18,23 @@ import TicketDialog from "./ticket-dialog";
 import { Separator } from "./ui/separator";
 import { reloadMyBasketEmitter } from "./product-item";
 import EventEmitter from "event-emitter";
-export interface basketModel {
+export interface itemsModel {
   product_id: string;
   product_price: number;
   product_title: string;
   quantity: number;
 }
+
+export interface basketModel {
+  items: itemsModel[];
+  gift: boolean;
+  shippingCost: number;
+  subTotal: number;
+  total: number;
+}
 const Basket = () => {
   const [tickedDialog, setTicketDialog] = useState<boolean>(false);
-  const [basket, setBasket] = useState<basketModel[]>([]);
+  const [basket, setBasket] = useState<basketModel>();
   const user = useCurrentUser();
   useEffect(() => {
     if (user) {
@@ -84,46 +92,47 @@ const Basket = () => {
       </CardHeader>
       <CardContent className="p-6 text-sm">
         {/* ornek bir adet siparis */}
-        <BasketItems products={basket} />
+        <BasketItems products={basket?.items} />
 
         <Separator className="my-4" />
         <div className="grid gap-3">
           <div className="font-semibold">Sipariş Detay</div>
           <ul className="grid gap-3">
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                Glimmer Lamps x <span>2</span>
-              </span>
-              <span>$250.00</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                Aqua Filters x <span>1</span>
-              </span>
-              <span>$49.00</span>
-            </li>
+            {basket?.items.map((item) => (
+              <li
+                key={item.product_id}
+                className="flex items-center justify-between"
+              >
+                <span className="text-muted-foreground">
+                  {item.product_title} x <span>{item.quantity}</span>
+                </span>
+                <span>{(item.product_price * item.quantity).toFixed(2)} ₺</span>
+              </li>
+            ))}
           </ul>
           <Separator className="my-2" />
           <ul className="grid gap-3">
             <li className="flex items-center justify-between">
               <span className="text-muted-foreground">Ara Toplam</span>
-              <span>$299.00</span>
+              <span>{basket?.subTotal}₺</span>
             </li>
             <li className="flex items-center justify-between">
               <span className="text-muted-foreground">Kargo</span>
-              <span>$5.00</span>
+              <span>{basket?.shippingCost}₺</span>
             </li>
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Standart teslimat</span>
-              <span>$25.00</span>
-            </li>
+            {basket?.gift && (
+              <li className="flex items-center justify-between">
+                <span className="text-muted-foreground">Bedava 1Kg kahve</span>
+                <span>bedava :)</span>
+              </li>
+            )}
+
             <li className="flex items-center justify-between font-semibold">
               <span className="text-muted-foreground">Toplam</span>
-              <span>$329.00</span>
+              <span>{basket?.total}₺</span>
             </li>
           </ul>
         </div>
-       
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
