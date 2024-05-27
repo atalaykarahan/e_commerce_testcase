@@ -1,10 +1,12 @@
-import axios from "../axios";
 import { cookies } from "next/dist/client/components/headers";
+import axios from "../axios";
+
+
 
 export const getMyCookie = () => {
   try {
     const cStore = cookies();
-    const cookees = cStore.get("connect.sid");
+    const cookees = cStore.get("sessid");
     const readable = cookees?.name + "=" + cookees?.value;
     return readable;
   } catch (error) {
@@ -27,12 +29,16 @@ export const verifiedEmail = (token: string) => {
   return axios.post(`/users/email-verified`, { token: token });
 };
 
-// export const getLoggedInUserServer = async () => {
-//   const query = await fetch(`${process.env.BASE_URL}/users`, {
-//     headers: {
-//       Cookie: `${getMyCookie()}`,
-//     },
-//   });
-//   const response = await query.json();
-//   return response;
-// };
+export const logOut = async () => {
+  return axios.post(`/users/logout`);
+};
+
+export const getLoggedInUserServer = async () => {
+  const query = await fetch(`${process.env.BASE_URL}/users`, {
+    headers: {
+      Cookie: `${getMyCookie()}`,
+    },
+  });
+  const response = await query.json();
+  return response;
+};

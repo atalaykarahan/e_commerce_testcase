@@ -1,10 +1,9 @@
-import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "@auth/core/providers/credentials";
-import GitHub from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
-import parse, { splitCookiesString } from "set-cookie-parser";
+import NextAuth from "next-auth";
 import { cookies } from "next/dist/client/components/headers";
+import parse, { splitCookiesString } from "set-cookie-parser";
 import { getLoggedInUserServer } from "./app/api/services/authService";
+// import { getLoggedInUserServer } from "./app/api/services/authService";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: {
@@ -12,6 +11,21 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     error: "/error",
   },
   callbacks: {
+    async session({ token, session }) {
+    
+      return session;
+    },
+    async jwt({ token }) {
+      if (!token.sub) return token;
+      await getLoggedInUserServer().then(async (value: any) => {
+        console.log("authorize kısmından dönen value",value);
+        if (value.error) {
+          await signOut();
+          return;
+        }
+      });
+      return token;
+    },
     async signIn({ account, profile }) {
       console.log("burasıda auth kısmındaki profile kısmı", profile);
       return true;
@@ -52,8 +66,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             });
 
             const response = await loginRequest.json();
-            console.log("dönen response şu şekilde", response);
-            return response;
+            return {
+              id: response.user_id,
+              name: response.user_name,
+              email: response.user_email,
+            };
           }
         } catch (error) {
           throw new Error("User authentication error");
