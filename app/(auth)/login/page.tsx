@@ -1,6 +1,5 @@
 "use client";
 import { loginAction } from "@/actions/login";
-import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,7 +9,6 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LoginSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -26,14 +24,10 @@ const LoginPage = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     // console.log("bunlar fonksiyon kısmı onsubmit giden value",values);
     try {
-      
-      loginAction(values).then((data) => {
-        console.log(data);
-      })
-
+      await loginAction(values);
     } catch (error) {
       console.log(error);
     }
@@ -84,29 +78,6 @@ const LoginPage = () => {
                   )}
                 />
 
-                {/* mail */}
-                {/* <div className="grid gap-2">
-              <Label htmlFor="email">E Posta</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@ornek.com"
-                required
-              />
-            </div> */}
-                {/* Password */}
-                {/* <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Şifre</Label>
-                    <Link
-                      href="/forgot-password"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      Şifreni mi unuttun?
-                    </Link>
-                  </div>
-                  <Input id="password" type="password" required />
-                </div> */}
                 <Button type="submit" className="w-full">
                   Login
                 </Button>

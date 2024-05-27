@@ -18,7 +18,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token }) {
       if (!token.sub) return token;
       await getLoggedInUserServer().then(async (value: any) => {
-        console.log("authorize kısmından dönen value",value);
         if (value.error) {
           await signOut();
           return;
@@ -27,7 +26,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return token;
     },
     async signIn({ account, profile }) {
-      console.log("burasıda auth kısmındaki profile kısmı", profile);
       return true;
     },
   },
