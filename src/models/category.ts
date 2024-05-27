@@ -30,7 +30,7 @@ const Category = db.define<CategoryInstance>(
     },
   },
   {
-    tableName: "CATEOGORY",
+    tableName: "CATEGORY",
     timestamps: false,
   }
 );

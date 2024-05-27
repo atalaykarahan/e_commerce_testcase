@@ -1,9 +1,8 @@
+import bcrypt from "bcrypt";
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
-import UserModel from "../models/user";
 import * as UserService from "../services/user";
-import bcrypt from "bcrypt";
 
 import { sendVerifyMail } from "../util/mail";
 import env from "../util/validateEnv";
@@ -159,7 +158,7 @@ export const login: RequestHandler<
 > = async (req, res, next) => {
   const user_email = req.body.user_email;
   const user_password = req.body.user_password;
-  console.log(user_email, user_password)
+  console.log(user_email, user_password);
 
   try {
     if (!user_email || !user_password) {
@@ -182,3 +181,29 @@ export const login: RequestHandler<
   }
 };
 //#endregion LOGIN
+
+//#region LOGOUT /api/users/logout
+export const logout: RequestHandler = (req, res, next) => {
+  req.session.destroy((error) => {
+    if (error) {
+      next(error);
+    } else {
+      res.sendStatus(200);
+      // res.clearCookie(env.COOKIE_NAME);
+    }
+  });
+};
+//#endregion
+
+//#region AUTHENTICATED /api/users/
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+  try {
+    const user = await UserService.getUserById(req.session.user_id);
+    if (!user) throw createHttpError(401, "Invalid credentials");
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//#endregion

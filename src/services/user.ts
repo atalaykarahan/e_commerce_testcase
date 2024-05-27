@@ -56,6 +56,17 @@ export const validateUser = async (email: string, password: string) => {
 
   if (!passwordMatch) return null;
   const { user_password, ...result } = user["dataValues"];
-  return user;
+  return result;
+};
+//#endregion
+
+//#region GET BY ID
+export const getUserById = async (user_id: string) => {
+  const user = await UserModel.findByPk(user_id);
+  if (!user) return null;
+
+  const { user_password, ...result } = user["dataValues"];
+
+  return result;
 };
 //#endregion

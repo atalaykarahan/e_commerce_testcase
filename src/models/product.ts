@@ -6,6 +6,8 @@ import {
   Model,
 } from "sequelize";
 import db from "../../db";
+import CategoryModel from "./category";
+import ProductFlavorModel from "./product_flavor";
 
 interface ProductInstance
   extends Model<
@@ -66,5 +68,11 @@ const Product = db.define<ProductInstance>(
     timestamps: false,
   }
 );
+
+CategoryModel.hasMany(Product, { foreignKey: "category_id" });
+Product.belongsTo(CategoryModel, { foreignKey: "category_id" });
+
+Product.hasMany(ProductFlavorModel, { foreignKey: "product_id" });
+ProductFlavorModel.hasMany(Product, { foreignKey: "product_id" });
 
 export default Product;

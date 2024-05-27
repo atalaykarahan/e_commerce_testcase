@@ -5,5 +5,6 @@ export default cleanEnv(process.env, {
   MAIL_USER: str(),
   MAIL_PASS: str(),
   EXPRESS_PORT: port(),
+  COOKIE_NAME:str(),
 
 });

@@ -40,7 +40,7 @@ const redis = new Redis({});
 
 app.use(
   session({
-    name: "sessid",
+    name: env.COOKIE_NAME,
     store: new RedisStore({ client: redis, Touch: false }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
