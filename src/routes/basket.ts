@@ -8,6 +8,6 @@ const router = express.Router();
 router.get("/",requiresAuth, BasketController.getBasket);
 
 //add item
-router.post("/", BasketController.addItem);
+router.post("/",requiresAuth, BasketController.addItem);
 
 export default router;

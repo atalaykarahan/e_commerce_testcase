@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import CategoryModel from "../models/category";
 import FlavorModel from "../models/flavor";
 import ProductModel from "../models/product";
+import { redisClient } from "../server";
 
 //#region GET PRODUCTS
 export const getProducts = async () => {
@@ -39,5 +40,16 @@ export const getProductById = async (product_id:string) => {
   const product = await ProductModel.findByPk(product_id);
   if (!product) return null;
   return product;
+};
+//#endregion
+
+
+//#region STORE ALL PRODUCT CACHE
+export const storeProductsToCache = async () => {
+  const key = "products";
+
+  const products = await getProducts();
+  await redisClient.set(key, JSON.stringify(products));
+  return true;
 };
 //#endregion

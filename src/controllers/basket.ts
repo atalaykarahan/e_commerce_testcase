@@ -7,8 +7,8 @@ import * as BasketService from "../services/basket";
 //#region GET BASKET /api/basket/
 export const getBasket: RequestHandler = async (req, res, next) => {
   try {
-    const products = await ProductService.getProducts();
-    res.status(200).json(products);
+    const basket = await BasketService.getBasket(req.session.user_id);
+    res.status(200).json(basket);
   } catch (error) {
     next(error);
   }

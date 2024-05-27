@@ -43,5 +43,20 @@ export const addToBasket = async (user_id: string, product_id: string) => {
   await redisClient.set(basketKey, JSON.stringify(items));
   return true;
 };
-
 //#endregion
+
+//#region GET BASKET
+export const getBasket = async (user_id: string) => {
+  const basketKey = `basket:${user_id}`;
+
+  //get user basket
+  const basket = await redisClient.get(basketKey);
+  let items: basketItem[] = basket ? JSON.parse(basket) : [];
+
+  if (!items) return null;
+
+  return items;
+};
+//#endregion
+
+

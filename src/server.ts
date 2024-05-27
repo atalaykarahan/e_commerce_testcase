@@ -15,6 +15,7 @@ const app = express();
 const port = env.EXPRESS_PORT;
 
 import db from "../db";
+import { storeProductsToCache } from "./services/product";
 
 //Test Db
 db.authenticate()
@@ -80,6 +81,16 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   res.status(statusCode).json({ error: errorMessage });
 });
 
-app.listen(port!, () => {
+app.listen(port!, async () => {
   console.log(`Server running on port: ${port}`);
+  await loadProductsToCache();
 });
+async function loadProductsToCache() {
+  try {
+    await storeProductsToCache();
+    console.log('Tüm ürünler Redis cache\'e yüklendi.');
+  } catch (error) {
+    console.error('Ürünleri yüklerken hata:', error);
+  }
+}
+
