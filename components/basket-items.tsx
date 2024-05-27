@@ -29,7 +29,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Pagination, PaginationContent, PaginationItem } from "./ui/pagination";
 import { basketModel } from "./basket";
-import { addItem } from "@/app/api/services/basketService";
+import { addItem, removeItem } from "@/app/api/services/basketService";
 import { toast } from "sonner";
 import { reloadMyBasketEmitter } from "./product-item";
 
@@ -39,6 +39,27 @@ interface BasketItemsProps {
 const BasketItems: React.FC<BasketItemsProps> = ({ products }) => {
   const plusItem = async (product_id: string) => {
     await addItem(product_id).then(
+      (res: any) => {
+        console.log("eklendi");
+        reloadMyBasketEmitter.emit("update");
+      },
+      (error) => {
+        if (
+          error.response.data.error ===
+          "Not enough stock for the requested quantity"
+        ) {
+          toast.error("Stokta kalmadı", {
+            description: "Daha fazla eklemenin lüzumu yok. Elimizde kalmadı",
+            position: "top-center",
+          });
+        } else {
+          console.log(error);
+        }
+      }
+    );
+  };
+  const discardItem = async (product_id: string) => {
+    await removeItem(product_id).then(
       (res: any) => {
         console.log("eklendi");
         reloadMyBasketEmitter.emit("update");
@@ -79,7 +100,12 @@ const BasketItems: React.FC<BasketItemsProps> = ({ products }) => {
               <Pagination className="ml-auto mr-0 w-auto">
                 <PaginationContent>
                   <PaginationItem>
-                    <Button size="icon" variant="outline" className="h-6 w-6">
+                    <Button
+                      onClick={() => discardItem(product.product_id)}
+                      size="icon"
+                      variant="outline"
+                      className="h-6 w-6"
+                    >
                       <CircleMinus className="h-3.5 w-3.5" />
                       <span className="sr-only">Çıkart</span>
                     </Button>
