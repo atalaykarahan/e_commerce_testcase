@@ -1,5 +1,8 @@
 "use client";
-import { currentUser } from "@/lib/auth";
+import { addItem } from "@/app/api/services/basketService";
+import { ProductItemModel } from "@/app/models/product";
+import EventEmitter from "events";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -9,31 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useEffect } from "react";
-import { addItem } from "@/app/api/services/basketService";
-import { error } from "console";
-import { toast } from "sonner";
 
-interface categoryModel {
-  category_id: string;
-  category_title: string;
-}
-interface flavorModel {
-  floavor_id: string;
-  note: string;
-}
-export interface ProductItemModel {
-  category: categoryModel;
-  flavors?: flavorModel[];
-  product_description: string;
-  product_id: string;
-  product_origin: string;
-  product_price: string;
-  product_roast_level: string;
-  product_stock_quantity: number;
-  product_title: string;
-}
+export const reloadMyBasketEmitter = new EventEmitter();
 
 interface ProductItemProps {
   product: ProductItemModel;
@@ -43,7 +23,8 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, user }) => {
   const onClick = async () => {
     await addItem(product.product_id).then(
       (res: any) => {
-        console.log(res);
+        console.log("eklendi");
+        reloadMyBasketEmitter.emit("update");
       },
       (error) => {
         if (

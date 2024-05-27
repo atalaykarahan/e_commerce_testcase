@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import LogoutButton from "@/components/logout-button";
 import {
   Tooltip,
@@ -7,11 +8,14 @@ import {
 } from "@/components/ui/tooltip";
 import { currentUser } from "@/lib/auth";
 import { LogIn, Package2, Settings } from "lucide-react";
+import { SessionProvider } from "next-auth/react";
 import Link from "next/link";
 
 const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
   const user = await currentUser();
+  const session = await auth();
   return (
+    <SessionProvider baseUrl="/" session={session}>
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 py-4">
@@ -60,6 +64,7 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
 
       {children}
     </div>
+    </SessionProvider>
   );
 };
 

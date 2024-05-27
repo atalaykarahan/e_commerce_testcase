@@ -21,7 +21,6 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({ user }) => {
         throw new Error("User ile ilgili bir hata oluştu");
       }
       setProducts(res.data);
-      console.log(res);
     } catch (error) {
       console.log(error);
     }

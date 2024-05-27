@@ -12,12 +12,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async session({ token, session }) {
-    
       return session;
     },
     async jwt({ token }) {
       if (!token.sub) return token;
       await getLoggedInUserServer().then(async (value: any) => {
+        console.log(value);
+        console.log("sayfalar arasında");
         if (value.error) {
           await signOut();
           return;
@@ -50,30 +51,32 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             }
           );
 
-          const cookieFullString = loginRequest.headers.get("set-cookie");
-          if (cookieFullString) {
-            const splittedCookie = splitCookiesString(cookieFullString);
-            const myCookie = parse(splittedCookie);
+          if (loginRequest.status == 201) {
+            const cookieFullString = loginRequest.headers.get("set-cookie");
+            if (cookieFullString) {
+              const splittedCookie = splitCookiesString(cookieFullString);
+              const myCookie = parse(splittedCookie);
 
-            cookies().set({
-              name: myCookie[0].name,
-              value: myCookie[0].value,
-              expires: myCookie[0].expires,
-              httpOnly: myCookie[0].httpOnly,
-              path: myCookie[0].path,
-            });
+              cookies().set({
+                name: myCookie[0].name,
+                value: myCookie[0].value,
+                expires: myCookie[0].expires,
+                httpOnly: myCookie[0].httpOnly,
+                path: myCookie[0].path,
+              });
 
-            const response = await loginRequest.json();
-            return {
-              id: response.user_id,
-              name: response.user_name,
-              email: response.user_email,
-            };
+              const response = await loginRequest.json();
+              return {
+                id: response.user_id,
+                name: response.user_name,
+                email: response.user_email,
+              };
+            }
           }
+          return null;
         } catch (error) {
           throw new Error("User authentication error");
         }
-        return null;
       },
     }),
   ],
