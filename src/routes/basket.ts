@@ -13,4 +13,6 @@ router.patch("/add",requiresAuth, BasketController.addItem);
 //remove item
 router.patch("/remove",requiresAuth, BasketController.removeItem);
 
+router.get("/order", requiresAuth, BasketController.orderBasket);
+
 export default router;

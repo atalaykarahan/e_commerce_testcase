@@ -10,6 +10,8 @@ import basketRoutes from "./routes/basket";
 import env from "./util/validateEnv";
 import Redis from "ioredis";
 import connectRedis from "connect-redis";
+import createRabbit from "../rabbitmq";
+import "./consumers/index"
 
 const app = express();
 const port = env.EXPRESS_PORT;
@@ -39,7 +41,7 @@ app.use(express.json());
 const RedisStore = require("connect-redis").default;
 //bos birakınca default olan 6379a baglanir
 export const redisClient = new Redis({
-  host:"localhost",
+  host: "localhost",
   port: 6380,
   password: "wubbalubbadubdub",
 });
@@ -89,6 +91,23 @@ app.listen(port!, async () => {
   console.log(`Server running on port: ${port}`);
   await loadProductsToCache();
 });
+
+app.use("/api/test", async (req, res) => {
+  const connection = await createRabbit();
+  const channel = await connection?.createChannel();
+
+  if (!connection) res.status(500).json({ error: "rabbite bağlanamadı" });
+
+
+  await channel?.assertQueue("owen", {durable: true});
+
+  channel?.sendToQueue("owen", Buffer.from(JSON.stringify("atalaykarahanmesaj")), {persistent: true})
+  return true;
+
+
+
+});
+
 async function loadProductsToCache() {
   try {
     await storeProductsToCache();

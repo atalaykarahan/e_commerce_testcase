@@ -1,3 +1,4 @@
+import createRabbit from "../../rabbitmq";
 import { productDTO } from "../models/dto/product";
 import { redisClient } from "../server";
 import * as ProductService from "./product";
@@ -136,6 +137,25 @@ export const getBasket = async (user_id: string) => {
 
   return { items, total, subTotal, gift, shippingCost };
 };
+//#endregion
+
+//#region ORDER
+export const order = async (user_id: string) => {
+  const rabbitConnnection = await createRabbit();
+  const rabbitChannel = await rabbitConnnection?.createChannel();
+
+  if (!rabbitConnnection) return null;
+  await rabbitChannel?.assertQueue("order", { durable: true });
+
+  const userBasket = await getBasket(user_id);
+  if (!userBasket) return null;
+
+  rabbitChannel?.sendToQueue("order", Buffer.from(JSON.stringify(userBasket)), {
+    persistent: true,
+  });
+  return true
+};
+
 //#endregion
 
 function removeItemByProductId(items: basketItem[], productIdToRemove: string) {
