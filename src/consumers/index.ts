@@ -3,7 +3,7 @@ import * as BasketService from "../services/basket";
 import * as ProductService from "../services/product";
 import { sendOrderMail } from "../util/mail";
 
-const consumer = async (quequeName: string) => {
+export const consumer = async (quequeName: string) => {
   const connection = await createRabbit();
   const channel = await connection?.createChannel();
 
@@ -56,4 +56,4 @@ const consumer = async (quequeName: string) => {
   });
 };
 
-consumer("order");
+

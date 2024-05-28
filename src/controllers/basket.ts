@@ -4,6 +4,7 @@ import createHttpError from "http-errors";
 import { redisClient } from "../server";
 import * as BasketService from "../services/basket";
 import createRabbit from "../../rabbitmq";
+import { consumer } from "../consumers";
 
 //#region GET BASKET /api/basket/
 export const getBasket: RequestHandler = async (req, res, next) => {
@@ -88,6 +89,7 @@ export const orderBasket: RequestHandler = async (req, res, next) => {
     const order = await BasketService.order(user_id);
     if (!order) throw createHttpError(400, "Error processing order");
 
+    await consumer("order");
     res.sendStatus(200);
   } catch (error) {
     next(error);
