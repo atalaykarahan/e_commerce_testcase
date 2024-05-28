@@ -1,3 +1,4 @@
+import createHttpError from "http-errors";
 import createRabbit from "../../rabbitmq";
 import { productDTO } from "../models/dto/product";
 import { redisClient } from "../server";
@@ -151,7 +152,7 @@ export const order = async (user_id: string) => {
   await rabbitChannel?.assertQueue("order", { durable: true });
 
   const userBasket = await getBasket(user_id);
-  if (!userBasket) return null;
+  if (!userBasket) throw createHttpError(400, "Error processing order");;
 
   const extendedBasket = {
     ...userBasket,

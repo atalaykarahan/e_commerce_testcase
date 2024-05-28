@@ -10,20 +10,48 @@ const consumer = async (quequeName: string) => {
   await channel?.consume(quequeName, async (msg: any) => {
     if (quequeName == "order") {
       const data = JSON.parse(msg.content.toString());
-      console.log("rabbit mq dan okunan data", data);
+      // Önce stok kontrolü yapılabilir
+      const itemsProcessed = [];
       for (const item of data.items) {
-        await ProductService.discardQuantity(item.product_id, item.quantity);
-        await ProductService.discardProductsStockInCache(
+        const discardDb = await ProductService.discardQuantity(
           item.product_id,
           item.quantity
         );
+        if (discardDb) {
+          itemsProcessed.push(item);
+        } else {
+          console.log(
+            `Stok yetersiz: Ürün ${item.product_id} için işlem iptal edildi.`
+          );
+        }
       }
-      await BasketService.clearBasket(data.user_id);
-      const mail = await sendOrderMail(data.user_email, JSON.stringify(data));
-      if (!mail) {
-        channel.nack(msg, false, true);
+
+      // Eğer tüm ürünler işlem gördüyse (stok yeterliyse)
+      if (itemsProcessed.length === data.items.length) {
+        // Kullanıcı sepetini temizle ve mail gönder
+        await BasketService.clearBasket(data.user_id);
+        const mailSent = await sendOrderMail(
+          data.user_email,
+          JSON.stringify(data)
+        );
+
+        if (!mailSent) {
+          throw new Error("Sipariş onay maili gönderilemedi.");
+        }
       }
-      channel.ack(msg);
+
+      console.log("Order processed successfully.");
+      channel.ack(msg); // Mesajı onayla (başarılı işlem)
+      // if (discardDb) {
+      //   //kim siparis verebilir ise onun siparisleri dusmeli burdan ve o kisiye mail gitmeli
+      //   await BasketService.clearBasket(data.user_id);
+      //   const mail = await sendOrderMail(data.user_email, JSON.stringify(data));
+      //   if (!mail) {
+      //     console.log("mail yollanamadı");
+      //   }
+      // }
+
+   
     }
   });
 };

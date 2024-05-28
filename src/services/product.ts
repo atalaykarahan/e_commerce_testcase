@@ -50,10 +50,11 @@ export const discardQuantity = async (
   discardCount: number
 ) => {
   const product = await getProductById(product_id);
-  if (!product) return null;
+  if (!product || product.product_stock_quantity == 0) return false;
 
   product.product_stock_quantity -= discardCount;
   await product.save();
+  return true;
 };
 //#endregion
 
