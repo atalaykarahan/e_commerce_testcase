@@ -1,7 +1,7 @@
 "use client";
 import { Copy, Ticket } from "lucide-react";
 
-import { getBasket } from "@/app/api/services/basketService";
+import { getBasket, order } from "@/app/api/services/basketService";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +13,16 @@ import {
 } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import BasketItems from "./basket-items";
+import { reloadMyBasketEmitter } from "./product-item";
 import TicketDialog from "./ticket-dialog";
 import { Separator } from "./ui/separator";
-import { reloadMyBasketEmitter } from "./product-item";
-import EventEmitter from "event-emitter";
+import EventEmitter from "events";
+
+
+
+export const reloadProductsEmitter = new EventEmitter();
 export interface itemsModel {
   product_id: string;
   product_price: number;
@@ -53,6 +58,24 @@ const Basket = () => {
         setBasket(res.data);
       } else {
         console.log("bir hata oldu");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const buy = async () => {
+    try {
+      const res = await order();
+      if (res.status == 200) {
+        toast.success("SİPARİŞ İŞLEME DÜŞÜLDÜ", {
+          description: "mailini kontrol et",
+          position: "top-center",
+        });
+        reloadProductsEmitter.emit("update");
+        reloadMyBasketEmitter.emit("update");
+      } else {
+        console.log(res);
       }
     } catch (error) {
       console.log(error);
@@ -136,7 +159,7 @@ const Basket = () => {
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
-          <Button>Satın al</Button>
+          <Button onClick={buy}>Satın al</Button>
         </div>
       </CardFooter>
 

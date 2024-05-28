@@ -1,7 +1,9 @@
 "use client";
 import { getProducts } from "@/app/api/services/productService";
 import { useEffect, useState } from "react";
-import ProductItem, { ProductItemModel } from "./product-item";
+import ProductItem from "./product-item";
+import { ProductItemModel } from "@/app/models/product";
+import { reloadProductsEmitter } from "./basket";
 
 
 
@@ -12,6 +14,13 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({ user }) => {
   const [products, setProducts] = useState<ProductItemModel[]>([]);
   useEffect(() => {
     fetchData();
+
+    reloadProductsEmitter.on("update", fetchData);
+    return () => {
+      reloadProductsEmitter.off("update", fetchData);
+    };
+
+
   }, []);
 
   const fetchData = async () => {

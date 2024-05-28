@@ -23,7 +23,6 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, user }) => {
   const onClick = async () => {
     await addItem(product.product_id).then(
       (res: any) => {
-        console.log("eklendi");
         reloadMyBasketEmitter.emit("update");
       },
       (error) => {

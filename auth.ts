@@ -17,8 +17,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token }) {
       if (!token.sub) return token;
       await getLoggedInUserServer().then(async (value: any) => {
-        console.log(value);
-        console.log("sayfalar arasında");
         if (value.error) {
           await signOut();
           return;

@@ -11,3 +11,7 @@ export const removeItem = async (product_id: string) => {
 export const getBasket = async () => {
   return await axios.get("/basket");
 };
+
+export const order = async () => {
+  return await axios.get("/basket/order");
+};
