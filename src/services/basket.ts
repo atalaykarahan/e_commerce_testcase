@@ -1,7 +1,7 @@
 import createRabbit from "../../rabbitmq";
 import { productDTO } from "../models/dto/product";
 import { redisClient } from "../server";
-import * as ProductService from "./product";
+import * as UserService from "./user";
 
 //#region ADD
 interface basketItem {
@@ -143,6 +143,9 @@ export const getBasket = async (user_id: string) => {
 export const order = async (user_id: string) => {
   const rabbitConnnection = await createRabbit();
   const rabbitChannel = await rabbitConnnection?.createChannel();
+  const user = await UserService.getUserById(user_id);
+
+  if (!user) return null;
 
   if (!rabbitConnnection) return null;
   await rabbitChannel?.assertQueue("order", { durable: true });
@@ -150,10 +153,31 @@ export const order = async (user_id: string) => {
   const userBasket = await getBasket(user_id);
   if (!userBasket) return null;
 
-  rabbitChannel?.sendToQueue("order", Buffer.from(JSON.stringify(userBasket)), {
-    persistent: true,
-  });
-  return true
+  const extendedBasket = {
+    ...userBasket,
+    user_id: user_id,
+    user_email: user.user_email,
+  };
+
+  rabbitChannel?.sendToQueue(
+    "order",
+    Buffer.from(JSON.stringify(extendedBasket)),
+    {
+      persistent: true,
+    }
+  );
+  return true;
+};
+
+//#endregion
+
+//#region CLEAR
+export const clearBasket = async (user_id: string) => {
+  const basketKey = `basket:${user_id}`;
+
+  //get user basket
+  await redisClient.del(basketKey);
+  return true;
 };
 
 //#endregion

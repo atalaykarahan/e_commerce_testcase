@@ -29,3 +29,21 @@ export const sendVerifyMail = async (mail: string, link: string) => {
     return false;
   }
 };
+
+export const sendOrderMail = async (mail: string, order:string) => {
+  try {
+    await transporter.sendMail({
+      from: {
+        name: "Fin ve Jack",
+        address: env.MAIL_USER,
+      },
+      to: [mail],
+      subject: "Ne kadar çok şey satın aldın",
+      html: `<p>${order}</p>`,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
